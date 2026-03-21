@@ -30,3 +30,17 @@ jobs:
         run: |
           cat output.txt | grep "Test passed" | grep -oP "\d{1,}/\d{1,}" | xargs -i echo "points={}"
           cat output.txt | grep "Test passed" | grep -oP "\d{1,}/\d{1,}" | xargs -i echo "points={}" >> $GITHUB_OUTPUT
+      - name: Require full points
+        run: |
+          POINTS='${{ steps.end.outputs.points }}'
+          if [ -z "$POINTS" ]; then
+            echo "points is empty"
+            exit 1
+          fi
+          GOT="${POINTS%%/*}"
+          TOTAL="${POINTS##*/}"
+          if [ "$GOT" != "$TOTAL" ]; then
+            echo "points is not full score: $POINTS"
+            exit 1
+          fi
+          echo "points is full score: $POINTS"
