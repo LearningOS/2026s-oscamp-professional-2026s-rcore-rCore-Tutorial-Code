@@ -9,7 +9,9 @@ edition = "2018"
 [dependencies]
 clap = "2.33.3"
 easy-fs = { path = "../easy-fs" }
-rand = "0.8.0"
+zerocopy = "=0.7.35"
+rand = "=0.8.4"
+ppv-lite86 = "=0.2.17"
 
 # [features]
 # board_qemu = []
