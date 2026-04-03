@@ -101,3 +101,13 @@ pub fn init_app_cx(app_id: usize) -> usize {
         USER_STACK[app_id].get_sp(),
     ))
 }
+
+/// Whether `addr` is a valid one-byte access in this app's image or user stack.
+pub fn user_byte_accessible(app_id: usize, addr: usize) -> bool {
+    let base = get_base_i(app_id);
+    if (base..base + APP_SIZE_LIMIT).contains(&addr) {
+        return true;
+    }
+    let stack_lo = USER_STACK[app_id].data.as_ptr() as usize;
+    (stack_lo..stack_lo + USER_STACK_SIZE).contains(&addr)
+}
