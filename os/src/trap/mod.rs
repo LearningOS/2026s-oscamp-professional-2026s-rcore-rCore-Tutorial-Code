@@ -18,7 +18,8 @@ use crate::config::{TRAMPOLINE, TRAP_CONTEXT_BASE};
 use crate::syscall::syscall;
 use crate::task::{
     check_signals_error_of_current, current_add_signal, current_trap_cx, current_user_token,
-    exit_current_and_run_next, handle_signals, suspend_current_and_run_next, SignalFlags,
+    exit_current_and_run_next, handle_cur_page_fault, handle_signals, suspend_current_and_run_next,
+    SignalFlags,
 };
 use crate::timer::set_next_trigger;
 use core::arch::{asm, global_asm};
@@ -87,7 +88,16 @@ pub fn trap_handler() -> ! {
                 stval,
                 current_trap_cx().sepc,
             );
-            current_add_signal(SignalFlags::SIGSEGV);
+            // current_add_signal(SignalFlags::SIGSEGV);
+            // page fault exit code
+            if handle_cur_page_fault(stval.into()) {
+                ();
+                // 继续执行
+            } else {
+                let cx = current_trap_cx();
+                println!("[kernel] PageFault in application, bad addr = {:#x}, bad instruction = {:#x}, kernel killed it.", stval, cx.sepc);
+                exit_current_and_run_next(-2);
+            }
         }
         Trap::Exception(Exception::IllegalInstruction) => {
             current_add_signal(SignalFlags::SIGILL);

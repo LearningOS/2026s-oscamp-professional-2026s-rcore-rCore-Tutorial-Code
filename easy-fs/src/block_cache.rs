@@ -66,6 +66,10 @@ impl BlockCache {
             self.block_device.write_block(self.block_id, &self.cache);
         }
     }
+    pub fn which_device(&self) -> u64 {
+        // self.block_device
+        0
+    }
 }
 
 impl Drop for BlockCache {

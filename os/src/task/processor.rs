@@ -7,6 +7,7 @@
 use super::__switch;
 use super::{fetch_task, TaskStatus};
 use super::{TaskContext, TaskControlBlock};
+use crate::mm::{MapPermission, VirtAddr};
 use crate::sync::UPSafeCell;
 use crate::trap::TrapContext;
 use alloc::sync::Arc;
@@ -108,4 +109,55 @@ pub fn schedule(switched_task_cx_ptr: *mut TaskContext) {
     unsafe {
         __switch(switched_task_cx_ptr, idle_task_cx_ptr);
     }
+}
+
+/// Set current task prio
+pub fn current_task_set_prio(prio: usize) {
+    current_task()
+        .unwrap()
+        .inner_exclusive_access()
+        .set_priority(prio);
+}
+
+/// Mmap in current user-space
+pub fn current_mmap(start_va: VirtAddr, end_va: VirtAddr, perm: MapPermission) -> isize {
+    current_task()
+        .unwrap()
+        .inner_exclusive_access()
+        .memory_set
+        .mmap(start_va, end_va, perm)
+}
+
+/// Unmmap in current user-space
+pub fn current_munmap(start_va: VirtAddr, end_va: VirtAddr) -> isize {
+    current_task()
+        .unwrap()
+        .inner_exclusive_access()
+        .memory_set
+        .unmmap(start_va, end_va)
+}
+
+/// export pagefault-handler
+pub fn handle_cur_page_fault(va: VirtAddr) -> bool {
+    current_task()
+        .unwrap()
+        .inner_exclusive_access()
+        .memory_set
+        .handle_page_fault(va)
+}
+
+/// Inc certain syscall count in cur task
+pub fn cur_syscall_count_inc(syscall: usize) {
+    current_task()
+        .unwrap()
+        .inner_exclusive_access()
+        .syscall_count_inc(syscall);
+}
+
+/// Get certain syscall count in cur task
+pub fn cur_syscall_count_get(syscall: usize) -> u8 {
+    current_task()
+        .unwrap()
+        .inner_exclusive_access()
+        .syscall_count_get(syscall)
 }

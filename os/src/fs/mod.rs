@@ -16,6 +16,8 @@ pub trait File: Send + Sync {
     fn read(&self, buf: UserBuffer) -> usize;
     /// write to the file from buf, return the number of bytes written
     fn write(&self, buf: UserBuffer) -> usize;
+    /// provide file state
+    fn stat(&self, st: &mut Stat);
 }
 
 /// The stat of a inode
@@ -44,6 +46,8 @@ bitflags! {
         const DIR   = 0o040000;
         /// ordinary regular file
         const FILE  = 0o100000;
+        /// pipe
+        const PIPE = 0o010000;
     }
 }
 
