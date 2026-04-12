@@ -53,6 +53,14 @@ fn get_base_i(app_id: usize) -> usize {
     APP_BASE_ADDRESS + app_id * APP_SIZE_LIMIT
 }
 
+pub fn get_app_base(app_id: usize) -> usize {
+    get_base_i(app_id)
+}
+
+pub fn get_user_sp(app_id: usize) -> usize {
+    USER_STACK[app_id].get_sp()
+}
+
 /// Get the total number of applications.
 pub fn get_num_app() -> usize {
     extern "C" {

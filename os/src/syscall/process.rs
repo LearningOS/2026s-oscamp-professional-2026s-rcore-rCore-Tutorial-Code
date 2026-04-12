@@ -1,7 +1,12 @@
 //! Process management syscalls
 use crate::{
-    task::{exit_current_and_run_next, suspend_current_and_run_next},
-    timer::get_time_us,
+    config::{APP_SIZE_LIMIT, USER_STACK_SIZE},
+    loader::{get_app_base, get_user_sp},
+    task::{
+        current_syscall_times, current_task_id, exit_current_and_run_next,
+        suspend_current_and_run_next,
+    },
+    timer::get_time_ms,
 };
 
 #[repr(C)]
@@ -9,6 +14,13 @@ use crate::{
 pub struct TimeVal {
     pub sec: usize,
     pub usec: usize,
+}
+
+#[repr(usize)]
+enum TraceRequest {
+    Read = 0,
+    Write = 1,
+    Syscall = 2,
 }
 
 /// task exits and submit an exit code
@@ -28,18 +40,48 @@ pub fn sys_yield() -> isize {
 /// get time with second and microsecond
 pub fn sys_get_time(ts: *mut TimeVal, _tz: usize) -> isize {
     trace!("kernel: sys_get_time");
-    let us = get_time_us();
+    let ms = get_time_ms();
     unsafe {
         *ts = TimeVal {
-            sec: us / 1_000_000,
-            usec: us % 1_000_000,
+            sec: ms / 1000,
+            usec: (ms % 1000) * 1000,
         };
     }
     0
 }
 
-// TODO: implement the syscall
-pub fn sys_trace(_trace_request: usize, _id: usize, _data: usize) -> isize {
+pub fn sys_trace(trace_request: usize, id: usize, data: usize) -> isize {
     trace!("kernel: sys_trace");
-    -1
+    match trace_request {
+        x if x == TraceRequest::Read as usize => trace_read(id as *const u8),
+        x if x == TraceRequest::Write as usize => trace_write(id as *mut u8, data as u8),
+        x if x == TraceRequest::Syscall as usize => current_syscall_times(id),
+        _ => -1,
+    }
+}
+
+fn trace_read(addr: *const u8) -> isize {
+    if !is_trace_addr_valid(addr as usize) {
+        return -1;
+    }
+    unsafe { addr.read_volatile() as isize }
+}
+
+fn trace_write(addr: *mut u8, data: u8) -> isize {
+    if !is_trace_addr_valid(addr as usize) {
+        return -1;
+    }
+    unsafe {
+        addr.write_volatile(data);
+    }
+    0
+}
+
+fn is_trace_addr_valid(addr: usize) -> bool {
+    let app_id = current_task_id();
+    let app_base = get_app_base(app_id);
+    let app_end = app_base + APP_SIZE_LIMIT;
+    let user_sp = get_user_sp(app_id);
+    let user_stack_bottom = user_sp - USER_STACK_SIZE;
+    (app_base..app_end).contains(&addr) || (user_stack_bottom..user_sp).contains(&addr)
 }
