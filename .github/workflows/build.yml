@@ -1,6 +1,9 @@
 name: Jobs
 
-on: [push]
+on:
+  push:
+    branches: [ch3, ch4, ch5, ch6, ch8]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -8,7 +11,7 @@ env:
 
 jobs:
   build-doc:
-    if: github.repository == 'LearningOS/rCore-Tutorial-Code'
+    if: github.repository_owner == 'LearningOS' && github.repository != 'LearningOS/2026s-oscamp-professional-2026s-rcore-rCore-Tutorial-Code' && !startsWith(github.event.repository.name, 'preparing-') && github.event_name != 'pull_request' && vars.STUDENT_GITHUB != '' && github.actor == vars.STUDENT_GITHUB && contains(fromJSON('["ch3","ch4","ch5","ch6","ch8"]'), github.ref_name) && (github.repository == 'LearningOS/rCore-Tutorial-Code')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +28,7 @@ jobs:
           publish_dir: ./os/target/riscv64gc-unknown-none-elf/doc
           destination_dir: ${{ github.ref_name }}
   basic-test:
+    if: github.repository_owner == 'LearningOS' && github.repository != 'LearningOS/2026s-oscamp-professional-2026s-rcore-rCore-Tutorial-Code' && !startsWith(github.event.repository.name, 'preparing-') && github.event_name != 'pull_request' && vars.STUDENT_GITHUB != '' && github.actor == vars.STUDENT_GITHUB && contains(fromJSON('["ch3","ch4","ch5","ch6","ch8"]'), github.ref_name)
     runs-on: ubuntu-latest
     outputs:
       points: ${{ steps.end.outputs.points }}
@@ -60,7 +64,7 @@ jobs:
           fi
           echo "points is full score: $POINTS"
   deploy:
-    if: github.repository != 'LearningOS/rCore-Tutorial-Code'
+    if: github.repository_owner == 'LearningOS' && github.repository != 'LearningOS/2026s-oscamp-professional-2026s-rcore-rCore-Tutorial-Code' && !startsWith(github.event.repository.name, 'preparing-') && github.event_name != 'pull_request' && vars.STUDENT_GITHUB != '' && github.actor == vars.STUDENT_GITHUB && contains(fromJSON('["ch3","ch4","ch5","ch6","ch8"]'), github.ref_name) && (github.repository != 'LearningOS/rCore-Tutorial-Code')
     name: Deploy to pages
     needs: basic-test
     runs-on: ubuntu-latest
