@@ -1,5 +1,13 @@
 # rCore-Tutorial-Code
 
+## 领取春夏季作业仓库
+
+1. 加入 [2026 春夏季训练营](https://opencamp.cn/os2edu/camp/2026spring)，并绑定自己的 GitHub 账号。
+2. 点击[领取作业仓库](https://github.com/LearningOS/2026s-enroll/issues/new?template=rcore.yml)，提交申请并接受仓库邀请。
+3. 在回复的作业仓库中，按照下方教程完成实验并 push，在 Actions 和训练营网站查看成绩。
+
+已领取过本课程的学员继续使用原作业仓库。
+
 ## Code
 
 - [Soure Code of labs](https://github.com/LearningOS/rCore-Tutorial-Code)
