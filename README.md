@@ -10,7 +10,7 @@
 
 ## Code
 
-- [Soure Code of labs](https://github.com/LearningOS/rCore-Tutorial-Code)
+- [Source Code of labs](https://github.com/LearningOS/rCore-Tutorial-Code)
 
 ## Documents
 
@@ -36,6 +36,8 @@
 
 ## Setup
 
+先按 [实验环境配置](https://learningos.github.io/rCore-Tutorial-Guide/0setup-devel-env.html) 准备 Linux、Rust 和 QEMU，再克隆自己的作业仓库。章节中的 `rust-toolchain.toml` 指定课程 Rust 版本。
+
 ```bash
 $ git clone https://github.com/LearningOS/2026s-rcore-[YOUR_USER_NAME].git
 $ cd 2026s-rcore-[YOUR_USER_NAME]
@@ -52,9 +54,10 @@ $ cd os
 $ make run
 ```
 
-If you want to use docker to build and run, you can use the following command:
+If you want to use Docker, return to the assignment repository root after selecting a chapter branch, then run:
 ```bash
 # After clone the `rCore-Tutorial-Test` repository to your local machine, you can use the following command to build and run:
+$ cd ..
 $ make build_docker
 $ make docker
 ```
@@ -71,18 +74,23 @@ If you experience network issues when accessing foreign resources such as GitHub
 - Docker run: use proxy option, related operations are similar to `Docker build`, can refer to the relevant materials by yourself
 
 
-Notice: $ID is from [1-9]
+本仓库提供 `ch1` 至 `ch8`；将 `$ID` 替换为章节数字。第 9 章 API 文档作为拓展阅读保留。
 
 ## Grading
 
+在已配置环境的作业仓库根目录运行。首次下载检查器；已有 `ci-user/` 时直接复用，并保留自己的代码与 `reports/` 中的实验报告。后续章节应保留此前报告。
+
 ```bash
 # setup build&run environment first
-$ rm -rf ci-user
 $ git clone https://github.com/LearningOS/rCore-Tutorial-Checker.git ci-user
 $ git clone https://github.com/LearningOS/rCore-Tutorial-Test.git ci-user/user
 $ git checkout ch$ID
 # check&grade OS in ch$ID with more tests
-$ cd ci-user && make test CHAPTER=$ID
+$ make -C ci-user test CHAPTER=$ID
 ```
 
 Notice: $ID is from [3,4,5,6,8]
+
+## 提交与查看成绩
+
+完成代码和报告后，使用领取仓库的 GitHub 账号推送到对应的 `ch3`、`ch4`、`ch5`、`ch6` 或 `ch8` 分支。在 Actions 查看测试与上传结果，再到 OpenCamp 查看成绩。`main`、`ch1`、`ch2`、`ch7` 不计分；每个计分章节通过后计 100 分，累计最高 500 分。
